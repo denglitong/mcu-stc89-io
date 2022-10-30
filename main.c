@@ -4,22 +4,22 @@ void ConfigUART(unsigned int baud);
 
 void main() {
 	
-	EA = 1; // 全局中断使能
+	EA = 1; // ȫ���ж�ʹ��
 	ConfigUART(9600);
 	
 	while (1) {
-//		// RI 接收中断标志位，当接收没结束时一直接收，
-//		// 接收结果保存在 SBUF 中；
-//		// 优化点：不应该在准循环中延时等待，
-//		// 而应该在中断中进行状态检测与重置
+//		// RI �����жϱ�־λ��������û����ʱһֱ���գ�
+//		// ���ս�������� SBUF �У�
+//		// �Ż��㣺��Ӧ����׼ѭ������ʱ�ȴ���
+//		// ��Ӧ�����ж��н���״̬���������
 //		while (!RI);
 //		RI = 0;
 //		
-//		// 等式右边的 SBUF 是来自接收模块的，
-//		// 等式左边的 SBUF 是来自发送模块的
+//		// ��ʽ�ұߵ� SBUF �����Խ���ģ��ģ�
+//		// ��ʽ��ߵ� SBUF �����Է���ģ���
 //		SBUF = SBUF + 1; // TxdBuf = RxdBuf + 1
 //		
-//		// TI 发送中断标示位，当发送没结束时一直发送
+//		// TI �����жϱ�ʾλ��������û����ʱһֱ����
 //		while (!TI);
 //		TI = 0;
 	}
@@ -27,24 +27,24 @@ void main() {
 
 void ConfigUART(unsigned int baud) {
 	// SCON 0101 0000
-	// SM1=1, REN=1，串行通信模式1
+	// SM1=1, REN=1������ͨ��ģʽ1
 	SCON = 0x50;
 	TMOD &= 0x0F; // Timer1
 	TMOD |= 0x20; // Reload mode
 	TH1 = 256 - (11059200/12/32)/baud;
 	TL1 = TH1;
-	ET1 = 0; // 使能T1作为波特率发生器，而禁止T1用作定时器
-	ES = 1; // 使能串口中断
+	ET1 = 0; // ʹ��T1��Ϊ�����ʷ�����������ֹT1������ʱ��
+	ES = 1; // ʹ�ܴ����ж�
 	TR1 = 1;
 }
 
 void InterruptUART() interrupt 4 {
-	// 如果是接收中断标志位
+	// ����ǽ����жϱ�־λ
 	if (RI) {
 		RI = 0;
 		SBUF = SBUF + 1;
 	}
-	// 如果是发送中断标志位
+	// ����Ƿ����жϱ�־λ
 	if (TI) {
 		TI = 0;
 	}
